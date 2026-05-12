@@ -1,0 +1,44 @@
+[project]
+name = "naver-news-cluster"
+version = "0.1.0"
+description = "네이버 뉴스 API + 쿨러스터링 파이프라인"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "bertopic>=0.17.4",
+    "fastapi>=0.136.1",
+    "hdbscan>=0.8.42",
+    "httpx>=0.28.1",
+    "konlpy>=0.6.0",
+    "langfuse>=4.6.1",
+    "loguru>=0.7.3",
+    "pydantic-settings>=2.14.1",
+    "python-dotenv>=1.2.2",
+    "sentence-transformers>=5.4.1",
+    "umap-learn>=0.5.12",
+    "uvicorn>=0.46.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.0.0",
+    "pytest>=9.0.3",
+    "pytest-asyncio>=1.3.0",
+    "ruff>=0.15.12",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

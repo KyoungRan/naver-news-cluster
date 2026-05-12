@@ -1,0 +1,24 @@
+# 앱 서버 Compose
+# 실행: docker compose -f docker/app/docker-compose.yml up -d
+# OR: make up
+services:
+  app:
+    build:
+      # context는 프로젝트 루트 기준 (COPY . . 가 루트를 바라봐야 하므로)
+      context: ../../
+      dockerfile: docker/app/Dockerfile
+    container_name: naver-news-cluster-app
+    ports:
+      - "8000:8000"
+    env_file:
+      # .env는 프로젝트 루트에 있으므로 상대 경로 지정
+      - ../../.env
+    volumes:
+      - ../../logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

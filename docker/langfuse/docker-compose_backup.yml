@@ -1,0 +1,47 @@
+# Langfuse 셀프 호스팅 (지침 §11)
+# 실행: docker compose -f docker/langfuse/docker-compose.yml up -d
+# 또는: make langfuse-up
+#
+# 주의 (지침 §11-2):
+#   Langfuse 공식 문서에서 로컬 compose를 production-ready로 명시하지 않습니다.
+#   부하가 커지면 VM 상향 또는 별도 배포 방식으로 전환하세요.
+
+version: "3.9"
+
+services:
+  langfuse-server:
+    image: langfuse/langfuse:latest
+    container_name: langfuse-server
+    depends_on:
+      langfuse-db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
+      NEXTAUTH_SECRET: "로컬_개발용_임시_시크릿_반드시_변경"
+      SALT: "로컬_개발용_임시_솔트_반드시_변경"
+      NEXTAUTH_URL: "http://localhost:3000"
+      TELEMETRY_ENABLED: "false"
+      LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "false"
+    restart: unless-stopped
+
+  langfuse-db:
+    image: postgres:15-alpine
+    container_name: langfuse-db
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse      # 운영 시 반드시 강한 비밀번호로 변경
+      POSTGRES_DB: langfuse
+    volumes:
+      - langfuse_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  langfuse_db_data:
+    driver: local
